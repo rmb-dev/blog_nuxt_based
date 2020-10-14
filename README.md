@@ -1,1 +1,1 @@
-# js_audio-visualisator
+# blog_nuxt_based
