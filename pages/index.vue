@@ -1,41 +1,100 @@
 <template>
-  <section class="text-gray-700 body-font">
-    <div
-      class="container mx-auto flex px-5 py-48 md:flex-row flex-col items-center"
-    >
-      <div
-        class="lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center"
+  <div class="m-8">
+    <TheHeader />
+
+    <h1 class="font-bold text-4xl">Blog Posts</h1>
+    <ul class="flex flex-wrap">
+      <li
+        v-for="article of articles"
+        :key="article.slug"
+        class="xs:w-full md:w-1/2 px-2 xs:mb-6 md:mb-12 article-card"
       >
-        <h1
-          class="title-font sm:text-5xl text-5xl mb-4 font-medium text-gray-900"
+        <NuxtLink
+          :to="{ name: 'blog-slug', params: { slug: article.slug } }"
+          class="flex transition-shadow duration-150 ease-in-out shadow-sm hover:shadow-md xxlmax:flex-col"
         >
-          {{ $t("home.heading") }}
-        </h1>
-        <p class="mb-8 leading-relaxed">
-          {{ $t("home.subtitle") }}
-        </p>
-        <div class="flex justify-center"></div>
-          <button
-            class="inline-flex text-white bg-teal-500 border-0 py-2 px-6 focus:outline-none hover:bg-teal-600 rounded text-lg"
+          <img
+            v-if="article.img"
+            class="h-48 xxlmin:w-1/2 xxlmax:w-full object-cover"
+            :src="article.img"
+          />
+
+          <div
+            class="p-6 flex flex-col justify-between xxlmin:w-1/2 xxlmax:w-full"
           >
-            {{ $t("home.home") }}
-          </button>
-          <button
-            class="ml-4 inline-flex text-gray-700 bg-gray-200 border-0 py-2 px-6 focus:outline-none hover:bg-gray-300 rounded text-lg"
+            <h2 class="font-bold">{{ article.title }}</h2>
+            <p>by {{ article.author.name }}</p>
+            <p class="font-bold text-gray-600 text-sm">
+              {{ article.description }}
+            </p>
+          </div>
+        </NuxtLink>
+      </li>
+    </ul>
+    <h3 class="mb-4 font-bold text-2xl uppercase text-center">Topics</h3>
+    <ul class="flex flex-wrap mb-4 text-center">
+      <li
+        v-for="tag of tags"
+        :key="tag.slug"
+        class="xs:w-full md:w-1/3 lg:flex-1 px-2 text-center"
+      >
+        <NuxtLink :to="`/blog/tag/${tag.slug}`" class="">
+          <p
+            class="font-bold text-gray-600 uppercase tracking-wider font-medium text-ss"
           >
-            <nuxt-link to="/blog">
-              {{ $t("home.blog") }}
-            </nuxt-link>
-          </button>
-        </div>
-      </div>
-      <div class="lg:max-w-lg lg:w-full md:w-1/2 w-5/6">
-        <img
-          class="object-cover object-center rounded"
-          alt="hero"
-          src="https://images.unsplash.com/photo-1505330622279-bf7d7fc918f4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80"
-        />
-      </div>
-    </div>
-  </section>
+            {{ tag.name }}
+          </p>
+        </NuxtLink>
+      </li>
+    </ul>
+    <footer class="flex justify-center border-gray-500 border-t-2">
+      <p class="mt-4">
+        Created by
+        <a
+          href="https://twitter.com/debs_obrien"
+          class="font-bold hover:underline"
+          >Debbie O'Brien</a
+        >
+        at NuxtJS. See the
+        <a
+          href="https://nuxtjs.org/blog/creating-blog-with-nuxt-content"
+          class="font-bold hover:underline"
+          >tutorial</a
+        >
+        for how to build it.
+      </p>
+    </footer>
+  </div>
 </template>
+
+<script>
+export default {
+  async asyncData({ $content, params }) {
+    const articles = await $content('articles', params.slug)
+      .only(['title', 'description', 'img', 'slug', 'author'])
+      .sortBy('createdAt', 'desc')
+      .fetch()
+    const tags = await $content('tags', params.slug)
+      .only(['name', 'description', 'img', 'slug'])
+      .sortBy('createdAt', 'asc')
+      .fetch()
+    return {
+      articles,
+      tags
+    }
+  }
+}
+</script>
+
+<style class="postcss">
+.article-card {
+  border-radius: 8px;
+}
+.article-card a {
+  background-color: #fff;
+  border-radius: 8px;
+}
+.article-card img div {
+  border-radius: 8px 0 0 8px;
+}
+</style>
